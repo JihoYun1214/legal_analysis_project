@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>법률 상담 시스템</title>
+    <style>
+        body {
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #2563eb;
+            font-size: 24px;
+            margin: 0 0 20px 0;
+            font-weight: 600;
+        }
+        .upload-section {
+            border: 1px dashed #ccc;
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+            margin: 20px 0;
+            background: #ffffff;
+        }
+        .file-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+        .button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .button-secondary {
+            background: #1a365d;
+        }
+        .result-section {
+            margin-top: 30px;
+        }
+        .result-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .result-title {
+            color: #1e40af;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .result-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .compensation-amount {
+            font-size: 32px;
+            color: #2563eb;
+            font-weight: 700;
+            text-align: center;
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            line-height: 1.6;
+        }
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #333;
+        }
+        .law-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        .law-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .law-content {
+            color: #666;
+            font-size: 14px;
+        }
+        .steps-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .steps-list li {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .step-number {
+            background: #2563eb;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .notice-box {
+            background: #fffbeb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #92400e;
+        }
+        .upload-section {
+            border: 2px dashed #ccc;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 12px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-section:hover {
+            border-color: #2563eb;
+            background: #f8fafc;
+        }
+        
+        #selectedFile {
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        
+        .button:hover {
+            background: #1e40af;
+        }
+        
+        .button:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>법률 상담 시스템</h1>
+        <p>진단서나 소견서를 업로드하여 법률 분석 및 예상 보상금액을 확인하세요.</p>
+
+        <div class="upload-section" id="dropZone">
+            <input type="file" id="fileUpload" accept="image/*,.pdf" style="display: none;">
+            <p>파일을 이 영역에 드래그하거나 클릭하여 업로드하세요</p>
+            <p class="file-info">지원 형식: JPG, PNG, PDF</p>
+        </div>
+
+        <div id="selectedFile"></div>
+        <button id="analyzeBtn" class="button" style="display: none;">분석 시작</button>
+
+        <div id="result" style="display: none;">
+            <div class="result-section">
+                <div class="result-card">
+                    <div class="result-title">
+                        <span>의뢰인 사례 분석</span>
+                    </div>
+                    <div class="result-content" id="caseAnalysis"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <span>관련 법령</span>
+                    </div>
+                    <div class="result-content" id="relatedLaws"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <span>유사 판례</span>
+                    </div>
+                    <div class="result-content" id="similarCases"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <span>예상 배상금액 산정</span>
+                    </div>
+                    <div class="compensation-amount" id="totalCompensation"></div>
+                    <div class="result-content" id="compensationDetails"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">
+                        <span>향후 진행 절차 안내</span>
+                    </div>
+                    <div class="result-content">
+                        <ol class="steps-list" id="nextSteps"></ol>
+                    </div>
+                </div>
+
+                <div class="notice-box">
+                    <strong>참고사항</strong>
+                    <p>현재 치료가 진행 중이므로, 향후 장해가 발생할 경우 추가적인 보상을 청구할 수 있습니다.
+                    따라서 성급한 합의는 피하시고, 치료가 완전히 종결된 후 최종적인 보상을 받는 것이 유리할 것으로 판단됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileUpload = document.getElementById('fileUpload');
+        const selectedFile = document.getElementById('selectedFile');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+    
+        // 드롭존 클릭 시 파일 선택 다이얼로그 표시
+        dropZone.addEventListener('click', () => {
+            fileUpload.click();
+        });
+    
+        // 파일 선택 시 처리
+        fileUpload.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+    
+        // 드래그 앤 드롭 이벤트 처리
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#2563eb';
+        });
+    
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+        });
+    
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+    
+        // 파일 선택 처리 함수
+        function handleFileSelect(file) {
+            selectedFile.textContent = `선택된 파일: ${file.name}`;
+            analyzeBtn.style.display = 'block';
+        }
+    
+        // 분석 시작 버튼 클릭 처리
+        analyzeBtn.addEventListener('click', async () => {
+            const file = fileUpload.files[0];
+            if (!file) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+    
+            // 로딩 표시 (필요한 경우)
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = '분석 중...';
+    
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+    
+                const response = await fetch('/api/analyze-document', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+                displayResults(data);
+    
+            } catch (error) {
+                console.error('Error:', error);
+                alert('파일 분석 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = '분석 시작';
+            }
+        });
+    
+        // ... (나머지 displayResults 함수 등은 유지)
+        // displayResults 함수 추가
+function displayResults(data) {
+    document.getElementById('result').style.display = 'block';
+
+    // 사례 분석 표시
+    document.getElementById('caseAnalysis').innerHTML = `
+        <div class="info-grid">
+            <span class="info-label">문서 종류</span>
+            <span class="info-value">${data.ocr_result.document_type}</span>
+            <span class="info-label">환자명</span>
+            <span class="info-value">${data.ocr_result.patient_name}</span>
+            <span class="info-label">진단명</span>
+            <span class="info-value">${data.ocr_result.diagnosis}</span>
+            <span class="info-label">치료기간</span>
+            <span class="info-value">${data.ocr_result.treatment_period}</span>
+            <span class="info-label">의료기관</span>
+            <span class="info-value">${data.ocr_result.hospital}</span>
+        </div>
+    `;
+
+    // 예상 보상금액 표시
+    const compensation = data.compensation_estimate;
+    document.getElementById('totalCompensation').textContent =
+        `${compensation.total.toLocaleString()}원`;
+
+    // 보상금 상세내역 표시
+    const breakdown = compensation.breakdown;
+    document.getElementById('compensationDetails').innerHTML = `
+        <div class="info-grid">
+            <span class="info-label">치료비</span>
+            <span class="info-value">${breakdown.medical_expenses.toLocaleString()}원</span>
+            <span class="info-label">휴업손해</span>
+            <span class="info-value">${breakdown.lost_income.toLocaleString()}원</span>
+            <span class="info-label">장해보상금</span>
+            <span class="info-value">${breakdown.disability_compensation.toLocaleString()}원</span>
+            <span class="info-label">위자료</span>
+            <span class="info-value">${breakdown.consolation_money.toLocaleString()}원</span>
+        </div>
+    `;
+
+    // 관련 법령 표시
+    document.getElementById('relatedLaws').innerHTML = data.applicable_laws.map(law => `
+        <div class="law-item">
+            <div class="law-title">${law.name} ${law.article}</div>
+            <div class="law-content">${law.content}</div>
+        </div>
+    `).join('');
+
+    // 유사 판례 표시
+    document.getElementById('similarCases').innerHTML = data.related_cases.map(case_ => `
+        <div class="law-item">
+            <div class="law-title">${case_.case_number}</div>
+            <div class="law-content">${case_.summary}</div>
+            <div class="law-content">보상액: ${case_.compensation.toLocaleString()}원</div>
+        </div>
+    `).join('');
+
+    // 진행 절차 표시
+    document.getElementById('nextSteps').innerHTML = `
+        <li><div class="step-number">1</div>근로복지공단 산재보험 신청</li>
+        <li><div class="step-number">2</div>사업주와 손해배상 협의</li>
+        <li><div class="step-number">3</div>민사소송 검토</li>
+    `;
+}
+
+    </script>
+    
+</body>
+</html>
+
+
+
+
+
+
+
